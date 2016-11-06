@@ -1,6 +1,7 @@
 module Main where
 
 import           Lists1
+
 main :: IO ()
 main =
-  print . elementAt [1,2,3] $ 1
+  print . flatten $ List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]
