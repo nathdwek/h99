@@ -1,6 +1,7 @@
 module Main where
 
 import           Lists1
+import           Lists2
 
 main :: IO ()
 main =
