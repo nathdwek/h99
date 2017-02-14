@@ -1,9 +1,11 @@
 module Lists2(
-  rlmEncode, rlmEncodeNC, rlmDecode, rlDecode, simpleRlDecode
+  rlmEncode, rlmEncodeNC, rlmDecode, rlDecode, simpleRlDecode,
+  directRlEncode, directRlmEncode, dupli, repli, repliF, repliCM, myDrop
 ) where
 
-import           Data.List (group)
-import           Lists1    (rlEncode)
+import           Control.Arrow
+import           Data.List     (group)
+import           Lists1        (rlEncode)
 
 data RlmItem a = Elem a | RL Int a
   deriving (Show)
@@ -34,3 +36,41 @@ rlDecode = concatMap decodeHelper
 
 simpleRlDecode:: [(Int, a)] -> [a]
 simpleRlDecode = concatMap (uncurry replicate)
+
+directRlEncode:: Eq a => [a] -> [(Int, a)]
+directRlEncode (x:xs) = (1+length same, x) : directRlEncode different
+  where
+    (same, different) = span (==x) xs
+directRlEncode [] = []
+
+directRlmEncode:: Eq a => [a] -> [RlmItem a]
+directRlmEncode (x:xs@(y:_))
+  | x == y = RL (1 + length same) x : directRlmEncode different
+  | otherwise = Elem x : directRlmEncode xs
+    where
+      (same, different) = span (==x) xs
+directRlmEncode [x] = [Elem x]
+directRlmEncode [] = []
+
+dupli:: [a] -> [a]
+dupli = foldr (\ x -> (++) [x, x]) []
+
+repli:: Int -> [a] -> [a]
+repli n (x:xs) = replicate n x ++ repli n xs
+repli n []     = []
+
+repliF:: Int -> [a] -> [a]
+repliF n = foldr ((++) . replicate n) []
+
+repliCM:: Int -> [a] -> [a]
+repliCM n = concatMap (replicate n)
+
+myDrop:: [a] -> Int -> [a]
+myDrop xs n = dropHelper xs n n
+  where dropHelper [] _ _         = []
+        dropHelper (x:xs) 1 reset = dropHelper xs reset reset
+        dropHelper (x:xs) n reset = x : dropHelper xs (n - 1) reset
+
+split:: Int -> [a] -> [[a]]
+split 1 x:xs
+split n x:xs = x:split (n-1) xs
