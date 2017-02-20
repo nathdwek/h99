@@ -1,6 +1,7 @@
 module Lists2(
   rlmEncode, rlmEncodeNC, rlmDecode, rlDecode, simpleRlDecode,
-  directRlEncode, directRlmEncode, dupli, repli, repliF, repliCM, myDrop
+  directRlEncode, directRlmEncode, dupli, repli, repliF, repliCM, myDrop, mySplit,
+  splitFS, mySlice, betterSlice, rotate, removeAt
 ) where
 
 import           Control.Arrow
@@ -71,6 +72,28 @@ myDrop xs n = dropHelper xs n n
         dropHelper (x:xs) 1 reset = dropHelper xs reset reset
         dropHelper (x:xs) n reset = x : dropHelper xs (n - 1) reset
 
-split:: Int -> [a] -> [[a]]
-split 1 x:xs
-split n x:xs = x:split (n-1) xs
+mySplit:: Int -> [a] -> ([a], [a])
+mySplit n xs = (take n xs, drop n xs)
+
+splitFS:: Int -> [a] -> ([a], [a])
+splitFS _ []  = ([], [])
+splitFS n l@(x:xs)
+  | n <= 0    = ([], l)
+  | otherwise = (x:ys, zs)
+  where (ys,zs) = splitFS (n-1) xs
+
+
+mySlice:: Int -> Int -> [a] -> [a]
+mySlice start end = take (end-start) . drop start
+
+betterSlice:: Int -> Int -> [a] -> [a]
+betterSlice start end = drop start . take end
+
+rotate:: Int -> [a] -> [a]
+rotate n l
+  | n >= 0  = drop n l ++ take n l
+  | otherwise = drop (length l + n) l ++ take (length l + n) l
+
+removeAt:: Int -> [a] -> [a]
+removeAt 0 (x:xs) = xs
+removeAt n (x:xs) = x:removeAt (n-1) xs
