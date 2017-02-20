@@ -94,6 +94,7 @@ rotate n l
   | n >= 0  = drop n l ++ take n l
   | otherwise = drop (length l + n) l ++ take (length l + n) l
 
-removeAt:: Int -> [a] -> [a]
-removeAt 0 (x:xs) = xs
-removeAt n (x:xs) = x:removeAt (n-1) xs
+removeAt:: Int -> [a] -> (a, [a])
+removeAt 0 (x:xs) = (x, xs)
+removeAt n (x:xs) = (popped, x:rest)
+  where (popped, rest) = removeAt (n-1) xs
